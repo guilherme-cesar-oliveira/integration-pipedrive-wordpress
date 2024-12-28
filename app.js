@@ -12,16 +12,16 @@ const port = 3001; // Porta do servidor
 const jsonFilePath = 'temp.json'; // Caminho do arquivo JSON para armazenar dados
 const refreshInterval = 2000000; // Intervalo de atualização do token (em milissegundos)
 const userAgentHeaders = {
-    hbenergia: 'https://hbenergia.com.br',
-    hbenergiaLp: 'https://lp.hbenergia.com.br'
+    siteA: 'https://sitea.com.br',
+    siteALp: 'https://lp.sitea.com.br'
 };
 const pipelines = {
-    hbenergia: { pipeline: 1, stage: 1 },
-    hbenergiaLp: { pipeline: 19, stage: 114 }
+    siteA: { pipeline: 1, stage: 1 },
+    siteALp: { pipeline: 19, stage: 114 }
 };
 const leadOrigins = {
-    hbenergia: 74, // Site (Hb Energia)
-    hbenergiaLp: 75  // Site (Hb Mobi)
+    siteA: 74, // Site A
+    siteALp: 75  // Landing Page Site A
 };
 const customFields = {
     cidade: "84a4d867a88b27fe1552cb95fb2cb75c73127f96",
@@ -164,10 +164,10 @@ app.post('/v1/integra', async (req, res) => {
     const apiToken = lerDados().access_token;
     const userAgent = req.headers['user-agent'].split(';')[1].trim();
 
-    const isHbenergia = userAgent === userAgentHeaders.hbenergia;
-    const isHbenergiaLp = userAgent === userAgentHeaders.hbenergiaLp;
+    const isSiteA = userAgent === userAgentHeaders.siteA;
+    const isSiteALp = userAgent === userAgentHeaders.siteALp;
 
-    if (!isHbenergia && !isHbenergiaLp) return res.status(400).send('User-Agent inválido.');
+    if (!isSiteA && !isSiteALp) return res.status(400).send('User-Agent inválido.');
 
     const basicInfos = {
         name: req.body.fields.nome.value,
@@ -179,20 +179,20 @@ app.post('/v1/integra', async (req, res) => {
     };
 
     const obj = {};
-    if (isHbenergia) {
+    if (isSiteA) {
         const { cnpj, cidade, conta } = req.body.fields;
         obj[customFields.cidade] = cidade.value;
         obj[customFields.cnpj] = cnpj?.value;
         obj[customFields.valorConta] = conta.value;
-        obj[customFields.origemLead] = leadOrigins.hbenergia;
-    } else if (isHbenergiaLp) {
+        obj[customFields.origemLead] = leadOrigins.siteA;
+    } else if (isSiteALp) {
         const { cidade, modelo } = req.body.fields;
 
         const [modelName, modelValue] = modelo.value.split(':');
         obj[customFields.cidade] = cidade.value;
         obj[customFields.modelo] = modelName.trim();
         obj.value = { amount: parseFloat(modelValue), currency: 'BRL' };
-        obj[customFields.origemLead] = leadOrigins.hbenergiaLp;
+        obj[customFields.origemLead] = leadOrigins.siteALp;
     }
 
     const createdPerson = await addPerson(apiToken, basicInfos);
