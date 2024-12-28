@@ -116,8 +116,8 @@ Defina as origens disponíveis para segmentar os leads:
 
 ```javascript
 const leadOrigins = {
-  hbenergia: id_origem_hbenergia,
-  hbenergiaLp: id_origem_hbenergiaLp
+  siteA: id_origem
+  siteALp: id_origem
 };
 ```
 
